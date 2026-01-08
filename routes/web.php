@@ -28,12 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     //==========================================likes=====================================
     Route::post('likes/toggle', [LikesController::class, 'toggle'])->name('likes.toggle');
+
     //==========================================comments==================================
-    Route::apiResource('comments', CommentsController::class)->only([
-        'store',
-        'update',
-        'destroy'
-    ]);
+    Route::post('/comments', [CommentsController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comments}', [CommentsController::class, 'destroy'])->name('comments.destroy');
 });
 
 require __DIR__ . '/settings.php';

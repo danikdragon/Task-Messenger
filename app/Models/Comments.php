@@ -30,4 +30,15 @@ class Comments extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($comment) {
+            $comment->comments()->each(function ($child) {
+                $child->delete();
+            });
+
+            $comment->likes()->delete();
+        });
+    }
 }

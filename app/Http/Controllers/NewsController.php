@@ -16,30 +16,34 @@ class NewsController extends Controller
      */
     public function index()
     {
+        $userId = Auth::id();
+
+        $commentQuery = function ($query) use ($userId, &$commentQuery) {
+            $query->with([
+                'user:id,name',
+                'comments' => $commentQuery
+            ])
+                ->withCount('likes', 'comments')
+                ->withExists(['likes as is_liked' => function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                }])
+                ->latest();
+        };
+
         $news = News::with([
             'user:id,name',
-            'comments' => function ($query) {
-                $query->with([
-                    'user:id,name',
-                    'comments.user:id,name'
-                ])
-                    ->withCount('likes', 'comments')
-                    ->withExists(['likes as is_liked' => function ($q) {
-                        $q->where('user_id', Auth::id());
-                    }]);
-            }
+            'comments' => $commentQuery
         ])
             ->withCount('likes', 'comments')
-            ->withExists(['likes as is_liked' => function ($query) {
-                $query->where('user_id', Auth::id());
+            ->withExists(['likes as is_liked' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
             }])
             ->latest()
             ->get();
 
-
-        return Inertia::render('news', [
-            "news" => $news,
-            "user_id" => Auth::id()
+        return inertia('news', [
+            'news' => $news,
+            'user_id' => $userId
         ]);
     }
 

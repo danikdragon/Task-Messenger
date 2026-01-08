@@ -31,4 +31,14 @@ class News extends Model
     {
         return $this->morphMany(Comments::class, 'commentable');
     }
+    protected static function booted()
+    {
+        static::deleting(function ($news) {
+            $news->comments()->each(function ($child) {
+                $child->delete();
+            });
+
+            $news->likes()->delete();
+        });
+    }
 }

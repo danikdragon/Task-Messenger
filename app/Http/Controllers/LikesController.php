@@ -13,16 +13,16 @@ class LikesController extends Controller
 {
     public function toggle(ToggleLikesRequest $request)
     {
-        $request->validate();
+        $data = $request->validated();
 
         /** @var User $user */
         $user_id = Auth::id();
 
-        $model = match ($request['likeable_type']) {
+        $model = match ($data['likeable_type']) {
             'news' => News::class,
             'comment' => Comments::class,
         };
-        $target = $model::findOrFail($model['id']);
+        $target = $model::findOrFail($data['id']);
         $like = $target->likes()->where("user_id", $user_id)->first();
         if ($like) {
             $like->delete();
