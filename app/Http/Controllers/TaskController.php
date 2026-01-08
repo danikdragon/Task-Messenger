@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
-use Illuminate\Auth\Events\Validated;
-use Illuminate\Foundation\Auth\User as AuthUser;
 use Inertia\Inertia;
 
 class TaskController extends Controller

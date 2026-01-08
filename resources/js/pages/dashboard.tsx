@@ -2,6 +2,8 @@ import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { index as tasks } from '@/routes/dashboard/tasks';
+import { index as news } from '@/routes/dashboard/news';
+
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
@@ -28,7 +30,7 @@ export default function Dashboard() {
                     </div>
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Link
-                            href={tasks.url()}
+                            href={news.url()}
                             className="absolute inset-0 size-full flex items-center justify-center stroke-neutral-900/20 dark:stroke-neutral-100/20"
                         >
                             <span>Лента</span>

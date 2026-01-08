@@ -4,9 +4,9 @@ import { Head, useForm, router } from '@inertiajs/react';
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog'; // Используем твой Radix
 import { dashboard } from '@/routes';
-import { index as taskRoute } from '@/routes/dashboard/tasks';
+import { index as newsRoute } from '@/routes/dashboard/news';
 // Интерфейсы
-interface Task {
+interface News {
     id: number;
     user_id: number;
     title: string;
@@ -15,8 +15,8 @@ interface Task {
     updated_at: string;
 }
 
-interface TaskProps {
-    tasks: Task[];
+interface NewsProps {
+    news: News[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -25,17 +25,17 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard.url(),
     },
     {
-        title: 'Task',
-        href: taskRoute.url(),
+        title: 'News',
+        href: newsRoute.url(),
     }
 ];
 
-export default function News({ tasks }: TaskProps) {
+export default function News({ news }: NewsProps) {
     // Форма создания
     const createForm = useForm({ title: '', body: '' });
 
     // Состояние для редактируемой задачи
-    const [editingTask, setEditingTask] = useState<Task | null>(null);
+    const [editingNews, setEditingNews] = useState<News | null>(null);
 
     // Форма редактирования
     const editForm = useForm({
@@ -45,48 +45,48 @@ export default function News({ tasks }: TaskProps) {
 
     const submitCreate = (e: React.FormEvent) => {
         e.preventDefault();
-        createForm.post(taskRoute.url(), {
+        createForm.post(newsRoute.url(), {
             onSuccess: () => createForm.reset(),
         });
     };
 
     // Открытие модалки и предзаполнение данных
-    const openEditModal = (task: Task) => {
-        setEditingTask(task);
+    const openEditModal = (news: News) => {
+        setEditingNews(news);
         editForm.setData({
-            title: task.title,
-            body: task.body || '',
+            title: news.title,
+            body: news.body || '',
         });
     };
 
     const submitUpdate = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!editingTask) return;
+        if (!editingNews) return;
 
         // Отправляем PATCH/PUT запрос
-        editForm.patch(`/dashboard/tasks/${editingTask.id}`, {
+        editForm.patch(`/dashboard/news/${editingNews.id}`, {
             onSuccess: () => {
-                setEditingTask(null);
+                setEditingNews(null);
                 editForm.reset();
             },
         });
     };
 
-    const deleteTask = (id: number) => {
+    const deleteNews = (id: number) => {
         if (confirm('Вы уверены?')) {
-            router.delete(`/dashboard/tasks/${id}`);
+            router.delete(`/dashboard/news/${id}`);
         }
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Мои задачи" />
+            <Head title="Новости" />
 
             <div className="flex flex-col gap-8 p-6 max-w-7xl mx-auto w-full">
 
                 {/* --- СЕКЦИЯ СОЗДАНИЯ --- */}
                 <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                    <h2 className="text-lg font-semibold mb-4 text-neutral-900 dark:text-white">Новая задача</h2>
+                    <h2 className="text-lg font-semibold mb-4 text-neutral-900 dark:text-white">Новая новость</h2>
                     <form onSubmit={submitCreate} className="flex flex-col gap-4">
                         <input
                             type="text"
@@ -103,37 +103,37 @@ export default function News({ tasks }: TaskProps) {
                             rows={2}
                         />
                         <button type="submit" disabled={createForm.processing} className="rounded-lg bg-black px-4 py-2 text-white dark:bg-white dark:text-black">
-                            Добавить задачу
+                            Добавить новость
                         </button>
                     </form>
                 </div>
 
                 {/* --- СПИСОК ЗАДАЧ --- */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {tasks.map((task) => (
-                        <div key={task.id} className="flex flex-col justify-between rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                    {news.map((news) => (
+                        <div key={news.id} className="flex flex-col justify-between rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                             <div className="mb-4">
-                                <h3 className="font-bold text-neutral-900 dark:text-neutral-100 uppercase tracking-tight">{task.title}</h3>
-                                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 line-clamp-3">{task.body}</p>
+                                <h3 className="font-bold text-neutral-900 dark:text-neutral-100 uppercase tracking-tight">{news.title}</h3>
+                                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 line-clamp-3">{news.body}</p>
                             </div>
 
                             <div className="flex items-center justify-between border-t border-neutral-50 pt-4 dark:border-neutral-800">
                                 <div className="flex gap-3">
                                     <button
-                                        onClick={() => openEditModal(task)}
+                                        onClick={() => openEditModal(news)}
                                         className="text-xs font-bold text-blue-500 hover:text-blue-600 uppercase"
                                     >
                                         Изменить
                                     </button>
                                     <button
-                                        onClick={() => deleteTask(task.id)}
+                                        onClick={() => deleteNews(news.id)}
                                         className="text-xs font-bold text-red-500 hover:text-red-600 uppercase"
                                     >
                                         Удалить
                                     </button>
                                 </div>
                                 <time className="text-[10px] text-neutral-400 font-medium">
-                                    {new Date(task.created_at).toLocaleDateString()}
+                                    {new Date(news.created_at).toLocaleDateString()}
                                 </time>
                             </div>
                         </div>
@@ -142,13 +142,13 @@ export default function News({ tasks }: TaskProps) {
             </div>
 
             {/* --- МОДАЛКА РЕДАКТИРОВАНИЯ (Radix Dialog) --- */}
-            <Dialog.Root open={!!editingTask} onOpenChange={() => setEditingTask(null)}>
+            <Dialog.Root open={!!editingNews} onOpenChange={() => setEditingNews(null)}>
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50" />
                     <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-50 p-4">
                         <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-2xl dark:border-neutral-800 dark:bg-neutral-900 animate-in fade-in zoom-in duration-200">
                             <Dialog.Title className="text-lg font-bold mb-4 dark:text-white uppercase tracking-tight">
-                                Редактировать задачу
+                                Редактировать новость
                             </Dialog.Title>
 
                             <form onSubmit={submitUpdate} className="flex flex-col gap-4">

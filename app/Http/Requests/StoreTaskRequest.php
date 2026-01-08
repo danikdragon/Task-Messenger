@@ -23,7 +23,7 @@ class StoreTaskRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'body'  => 'nullable|string', // Если этого поля тут нет, оно не попадет в базу!
+            'body'  => 'nullable|string',
         ];
     }
 }
