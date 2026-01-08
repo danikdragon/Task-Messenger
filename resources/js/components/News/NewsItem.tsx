@@ -10,16 +10,15 @@ interface Props {
     onEdit: (post: NewsData) => void;
     onDelete: (url: string) => void;
 }
+const calculateTotalComments = (comments: Comment[] | undefined): number => {
+    if (!comments) return 0;
+    return comments.reduce((acc, curr) => {
+        return acc + 1 + calculateTotalComments(curr.comments);
+    }, 0);
+};
 
 export default function NewsItem({ post, userId, onEdit, onDelete }: Props) {
     const [replyingTo, setReplyingTo] = useState<{ id: number, name: string } | null>(null);
-
-    const calculateTotalComments = (comments: Comment[] | undefined): number => {
-        if (!comments) return 0;
-        return comments.reduce((acc, curr) => {
-            return acc + 1 + calculateTotalComments(curr.comments);
-        }, 0);
-    };
 
     const totalCommentsCount = useMemo(() => calculateTotalComments(post.comments), [post.comments]);
 
