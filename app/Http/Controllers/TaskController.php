@@ -30,16 +30,13 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request)
     {
-        // Данные уже проверены внутри StoreTaskRequest
         /** @var User $user */
         $user = Auth::user();
 
-        // Создаем через связь (user_id подставится сам)
         $user->tasks()->create($request->validated());
 
-        // Перенаправляем обратно на список (Inertia обновит данные)
-        return redirect()->route('dashboard.tasks.index')
-            ->with('message', 'Задача успешно создана!');;
+        return back()
+            ->with('message', 'Задача успешно создана!');
     }
 
     /**
@@ -59,8 +56,6 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        // Защита: проверяем, что задача принадлежит юзеру
-        // В идеале это делается через Policy, но можно и так:
         abort_if($task->user_id !== Auth::id(), 403);
 
         $task->update($request->validated());
@@ -73,12 +68,10 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        // Защита от удаления чужой задачи
         abort_if($task->user_id !== Auth::id(), 403);
 
         $task->delete();
 
-        // back() просто вернет на ту же страницу
         return back()->with('message', 'Задача удалена');
     }
 }

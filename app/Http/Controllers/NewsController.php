@@ -16,10 +16,30 @@ class NewsController extends Controller
      */
     public function index()
     {
-        $news = News::latest()->get();
+        $news = News::with([
+            'user:id,name',
+            'comments' => function ($query) {
+                $query->with([
+                    'user:id,name',
+                    'comments.user:id,name'
+                ])
+                    ->withCount('likes', 'comments')
+                    ->withExists(['likes as is_liked' => function ($q) {
+                        $q->where('user_id', Auth::id());
+                    }]);
+            }
+        ])
+            ->withCount('likes', 'comments')
+            ->withExists(['likes as is_liked' => function ($query) {
+                $query->where('user_id', Auth::id());
+            }])
+            ->latest()
+            ->get();
+
 
         return Inertia::render('news', [
-            "news" => $news
+            "news" => $news,
+            "user_id" => Auth::id()
         ]);
     }
 
@@ -28,16 +48,13 @@ class NewsController extends Controller
      */
     public function store(StoreNewsRequest $request)
     {
-        // Данные уже проверены внутри StoreNewsRequest
         /** @var User $user */
         $user = Auth::user();
 
-        // Создаем через связь (user_id подставится сам)
         $user->news()->create($request->validated());
 
-        // Перенаправляем обратно на список (Inertia обновит данные)
-        return redirect()->route('dashboard.news.index')
-            ->with('message', 'Новость успешно создана!');;
+        return back()
+            ->with('message', 'Новость успешно создана!');
     }
 
     /**
@@ -55,8 +72,6 @@ class NewsController extends Controller
      */
     public function update(UpdateNewsRequest $request, News $news)
     {
-        // Защита: проверяем, что задача принадлежит юзеру
-        // В идеале это делается через Policy, но можно и так:
         abort_if($news->user_id !== Auth::id(), 403);
 
         $news->update($request->validated());
@@ -64,17 +79,12 @@ class NewsController extends Controller
         return back()->with('message', 'Новость обновлена');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(News $news)
     {
-        // Защита от удаления чужой задачи
         abort_if($news->user_id !== Auth::id(), 403);
 
         $news->delete();
 
-        // back() просто вернет на ту же страницу
         return back()->with('message', 'Новость удалена');
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title')->default("Пустой заголовок");
             $table->text('body')->default("Без записи");
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

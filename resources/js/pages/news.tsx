@@ -6,9 +6,13 @@ import * as Dialog from '@radix-ui/react-dialog'; // Используем тво
 import { dashboard } from '@/routes';
 import { index as newsRoute } from '@/routes/dashboard/news';
 // Интерфейсы
+interface User {
+    name: string;
+}
 interface News {
     id: number;
     user_id: number;
+    user: User;
     title: string;
     body: string | null;
     created_at: string;
@@ -16,6 +20,7 @@ interface News {
 }
 
 interface NewsProps {
+    user_id: number
     news: News[];
 }
 
@@ -30,7 +35,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     }
 ];
 
-export default function News({ news }: NewsProps) {
+export default function News({ news, user_id }: NewsProps) {
     // Форма создания
     const createForm = useForm({ title: '', body: '' });
 
@@ -110,30 +115,35 @@ export default function News({ news }: NewsProps) {
 
                 {/* --- СПИСОК ЗАДАЧ --- */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {news.map((news) => (
-                        <div key={news.id} className="flex flex-col justify-between rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                    {news.map((post) => (
+                        <div key={post.id} className="flex flex-col justify-between rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+
                             <div className="mb-4">
-                                <h3 className="font-bold text-neutral-900 dark:text-neutral-100 uppercase tracking-tight">{news.title}</h3>
-                                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 line-clamp-3">{news.body}</p>
+                                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-500 line-clamp-3">Автор: {post.user.name}</p>
+                                <h3 className="font-bold text-neutral-900 dark:text-neutral-100 uppercase tracking-tight">{post.title}</h3>
+                                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 line-clamp-3">{post.body}</p>
                             </div>
 
                             <div className="flex items-center justify-between border-t border-neutral-50 pt-4 dark:border-neutral-800">
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => openEditModal(news)}
-                                        className="text-xs font-bold text-blue-500 hover:text-blue-600 uppercase"
-                                    >
-                                        Изменить
-                                    </button>
-                                    <button
-                                        onClick={() => deleteNews(news.id)}
-                                        className="text-xs font-bold text-red-500 hover:text-red-600 uppercase"
-                                    >
-                                        Удалить
-                                    </button>
-                                </div>
+                                {user_id === post.user_id && (
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => openEditModal(post)}
+                                            className="text-xs font-bold text-blue-500 hover:text-blue-600 uppercase"
+                                        >
+                                            Изменить
+                                        </button>
+                                        <button
+                                            onClick={() => deleteNews(post.id)}
+                                            className="text-xs font-bold text-red-500 hover:text-red-600 uppercase"
+                                        >
+                                            Удалить
+                                        </button>
+
+                                    </div>
+                                )}
                                 <time className="text-[10px] text-neutral-400 font-medium">
-                                    {new Date(news.created_at).toLocaleDateString()}
+                                    {new Date(post.created_at).toLocaleDateString()}
                                 </time>
                             </div>
                         </div>

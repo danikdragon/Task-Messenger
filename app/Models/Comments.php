@@ -5,24 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class News extends Model
+class Comments extends Model
 {
-    /** @use HasFactory<\Database\Factories\NewsFactory> */
+    /** @use HasFactory<\Database\Factories\CommentsFactory> */
     use HasFactory;
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'title',
-        'body',
-        'user_id',
+        "user_id",
+        "text",
     ];
-    public function user()
+    public function commentable()
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
+
     public function likes()
     {
         return $this->morphMany(Likes::class, 'likeable');
@@ -30,5 +25,9 @@ class News extends Model
     public function comments()
     {
         return $this->morphMany(Comments::class, 'commetable');
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
