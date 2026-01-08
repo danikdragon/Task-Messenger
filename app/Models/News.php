@@ -29,6 +29,6 @@ class News extends Model
     }
     public function comments()
     {
-        return $this->morphMany(Comments::class, 'commetable');
+        return $this->morphMany(Comments::class, 'commentable');
     }
 }

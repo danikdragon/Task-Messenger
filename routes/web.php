@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CommentsController;
+use App\Http\Controllers\LikesController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\NewsController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +25,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     //==========================================news======================================
     Route::apiResource('dashboard/news', NewsController::class)->names('dashboard.news');
+
+    //==========================================likes=====================================
+    Route::post('likes/toggle', [LikesController::class, 'toggle'])->name('likes.toggle');
+    //==========================================comments==================================
+    Route::apiResource('comments', CommentsController::class)->only([
+        'store',
+        'update',
+        'destroy'
+    ]);
 });
 
 require __DIR__ . '/settings.php';
